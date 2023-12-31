@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+#SBATCH --time=7:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=100000
+#SBATCH --job-name="MMFL-Federated"
+#SBATCH --output="mmfl-fed-fold2.out"
+#SBATCH --mail-user=kasrabor@buffalo.edu
+#SBATCH --mail-type=all
+#SBATCH --partition=general-compute
+#SBATCH --qos=general-compute
+#SBATCH --constraint=A100
+#SBATCH --cluster=ub-hpc
+#SBATCH --reservation=ubhpc-future
+
+source ~/load_anaconda.sh
+module load cuda/11.7.1
+module load cudnn/8.4.1.50-CUDA-11.7.1
+conda activate mmfl
+
+
+python fed_train_proposed_refactored.py \
+--batch_size 8 --epoch_per_round 1 --acc_used --num_fed_loops 100 \
+--data_path /projects/academic/alipour/kasrabor/MMFL/data/multi_modal_features/may_19_2023/ \
+--saved_model_path /projects/academic/alipour/kasrabor/MMFL/saved_models \
+--result_path /projects/academic/alipour/kasrabor/MMFL/results \
+--init_lr 1e-4 --lr_decay_rate 0.99 --steps_per_decay 10 --mode tri_modal --stop_criteria 100 --num_fold 2

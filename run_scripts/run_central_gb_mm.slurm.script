@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+#SBATCH --time=5:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=40000
+#SBATCH --job-name="MMFL-central-$1"
+#SBATCH --output="mmfl-central-lr3.out"
+#SBATCH --mail-user=kasrabor@buffalo.edu
+#SBATCH --mail-type=all
+#SBATCH --partition=general-compute
+#SBATCH --qos=general-compute
+#SBATCH --constraint=A100
+#SBATCH --cluster=ub-hpc
+#SBATCH --reservation=ubhpc-future
+
+source ~/load_anaconda.sh
+module load cuda/11.7.1
+module load cudnn/8.4.1.50-CUDA-11.7.1
+conda activate mmfl
+
+
+# python centralized_train_multimodal.py --batch_size 16 --num_epochs 200 --acc_used  --validation_split 0.2 --data_path /projects/academic/alipour/kasrabor/MMFL/data/multi_modal_features/may_19_2023/ --saved_model_path /projects/academic/alipour/kasrabor/MMFL/saved_models --result_path /projects/academic/alipour/kasrabor/MMFL/results --init_lr 1e-2 --lr_decay_rate 0.99 --steps_per_decay 10  
+python central_multimodal_gb.py --batch_size 16 --acc_used --validation_split 0.2 --data_path /projects/academic/alipour/kasrabor/MMFL/data/multi_modal_features/may_19_2023/ --saved_model_path /projects/academic/alipour/kasrabor/MMFL/saved_models --result_path /projects/academic/alipour/kasrabor/MMFL/results --init_lr 1e-4 --lr_decay_rate 0.99 --steps_per_decay 20 --num_super_epochs 300 --super_epoch_len 4 --we_epoch_len 4
