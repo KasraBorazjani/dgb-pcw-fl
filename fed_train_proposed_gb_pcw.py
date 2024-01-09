@@ -21,27 +21,17 @@ def main():
     args = parse_arguments()
 
     BATCH_SIZE = args.batch_size
-    # NUM_EPOCHS = {('brca', 1):1, ('brca', 2): 3, ('brca', 3): 3, ('brca', 4): 3, ('brca', 5): 3, ('brca', 6): 6, ('brca', 7): 2,
-    #               ('lusc', 1): 2, ('lusc', 2): 2, ('lusc', 3): 2, ('lihc', 1): 2, ('lihc', 2): 2, ('lihc', 3): 2}
     NUM_EPOCHS = {('brca', 0): args.epoch_per_round, ('brca', 1): args.epoch_per_round, ('brca', 2): args.epoch_per_round, ('brca', 3): args.epoch_per_round, ('lusc', 0): args.epoch_per_round, ('lusc', 1): args.epoch_per_round, ('lusc', 2): args.epoch_per_round, ('lusc', 3): args.epoch_per_round, ('lihc', 0): args.epoch_per_round, ('lihc', 1): args.epoch_per_round, ('lihc', 2): args.epoch_per_round, ('lihc', 3): args.epoch_per_round}
-    # NUM_EPOCHS = {('brca', 1): 1, ('brca', 2): 1, ('brca', 3): 1, ('lusc', 1): 1, ('lusc', 2): 1, ('lusc', 3): 1, ('lihc', 1): 1, ('lihc', 2): 1, ('lihc', 3): 1}
     SHUFFLE_DATASET = args.shuffle_dataset
     RANDOM_SEED = args.random_seed
     ACC_USED = args.acc_used
     NUM_FED_LOOPS = args.num_fed_loops
-    # COHORTS = ["brca"]
     COHORTS = ["brca", "lusc", "lihc"]
-    # DATA_PATH = os.path.join("..", "data", "multi_modal_features", 'may_19_2023')
     DATA_PATH = args.data_path
-    # INIT_LR = 1e-6
     INIT_LR = args.init_lr
-    # LR_DECAY_RATE = 0.9
     LR_DECAY_RATE = args.lr_decay_rate
-    # STEPS_PER_DECAY = 7
     STEPS_PER_DECAY = args.steps_per_decay
-    # MODE = 'bi_modal'
     MODE = args.mode
-    # STOP_CRITERIA = 15
     STOP_CRITERIA = args.stop_criteria
 
     SAVE_DIR = set_up_base_fed(args)
@@ -73,9 +63,6 @@ def main():
                 network['column_map'] = datasets[clientbuildnum].column_map
                 network['validation_dataloaders'].append(DataLoader(datasets[clientbuildnum], batch_size=1))
                 network['validation_len'] += len(network['validation_dataloaders'][-1])
-                # print("mrna: ", len(datasets[clientbuildnum].column_map["mrna"]))
-                # print("image: ", len(datasets[clientbuildnum].column_map["image"]))
-                # print("clinical: ", len(datasets[clientbuildnum].column_map["clinical"]))
                 print(f"Test dataset for cohort {cohort} added with size {len(datasets[clientbuildnum])}.")
             else:
                 network['clients'].append(create_client_gb(cohort, clientbuildnum, datasets[clientbuildnum], args, device))
@@ -85,18 +72,13 @@ def main():
     network['new_global_model'] = model_assigner(network['modalities'])
     network['old_global_model'] = model_assigner(network['modalities'])
 
-    # model = CustomFederatedModel(modalities=["mrna", "image", "clinical"], column_map=network['validation_datasets'][0].column_map)
-    # network['global_model'] = CustomFederatedModel(modalities=network['modalities'], column_map=network['validation_dataloaders'][0].dataset.column_map)
-    # model = CustomFederatedModel(modalities=["mrna"], column_map=network['validation_datasets'][0].column_map)
-
     if args.acc_used:
         network['old_global_model'].to(device)
         network['new_global_model'].to(device)
     
     network['old_global_model'].load_state_dict(torch.load(os.path.join(args.saved_model_path, f"federated_{modality_to_classifier_mapper(network['modalities'])}_start_model.pt")))
     network['new_global_model'].load_state_dict(torch.load(os.path.join(args.saved_model_path, f"federated_{modality_to_classifier_mapper(network['modalities'])}_start_model.pt")))
-    # model.load_state_dict(torch.load('../saved_models/federated_mrna_image_clinical_start_model.pt'))
-
+    
     network['train_loss_gb'] = init_loss_dict(network['modalities'], mode="per_client")
     network['valid_loss_gb'] = init_loss_dict(network['modalities'], mode="per_client")
     network['train_loss_gb_avg'] = init_loss_dict(network['modalities'], mode="average")
@@ -124,7 +106,6 @@ def main():
     elif args.mode == 'bi_modal':
         network['old_global_classifiers'] = {"mrna":[], "image":[], "mrna_image":[]}
         network['new_global_classifiers'] = {"mrna":[], "image":[], "mrna_image":[]}
-    # network['global_classifiers'] = {"mrna_image":{}}
     
 
     ### Initializing Classifier Dict ###
@@ -152,7 +133,6 @@ def main():
             network['trained_encoders'] = {'mrna':{}, 'image':{}, "clinical":{}}
         elif args.mode == 'bi_modal':
             network['trained_encoders'] = {'mrna':{}, 'image':{}}
-        # network['trained_encoders'] = {'mrna':{}}
 
 
         ### Trained Classifier Dict ###
@@ -352,15 +332,6 @@ def main():
         np.savetxt(os.path.join(client_plot_dir, f"val_loss_{client['cohort_id'][0]}_{client['cohort_id'][1]}_{modality_to_classifier_mapper(client['modalities'])}.csv"), np.asarray(client['valid_loss_memory']), delimiter=",")
         np.savetxt(os.path.join(client_plot_dir, f"train_loss_{client['cohort_id'][0]}_{client['cohort_id'][1]}_{modality_to_classifier_mapper(client['modalities'])}.csv"), np.asarray(client['train_loss_memory']), delimiter=",")
     
-    # plt.figure()
-    # for client in network['clients']:
-    #     plt.plot(np.array([x for x in range(len(client['valid_acc_memory']))]), client['valid_acc_memory'], label=f"{client['cohort_id'][0]}_{client['cohort_id'][1]}")
-    # plt.grid(True)
-    # plt.xlabel('Epochs')
-    # plt.ylabel('CrossEntropy Loss')
-    # plt.title(f"Train vs. Validation Accuracy for client {client['cohort_id'][0]}, {client['cohort_id'][1]}")
-    # plt.legend(['Validaiton', 'Train'])
-    # plt.savefig(os.path.join(client_plot_dir, f"{client['cohort_id'][0]}_{client['cohort_id'][1]}.png"))
 
 
 main()
