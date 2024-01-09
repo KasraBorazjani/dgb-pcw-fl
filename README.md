@@ -117,10 +117,17 @@ After the code completes, it will generate the following files in the specified 
 - **Data Path Errors:** Double-check the `--data_path` argument to ensure it points to the correct location of your data.
 - **GPU Compatibility:** If using GPU acceleration, verify that PyTorch is configured to use your GPU correctly.
 
-
 ## **Citation**
-
-... (include citation information for the paper and any other resources)
+```
+@misc{borazjani2024multimodal,
+      title={Multi-Modal Federated Learning for Cancer Staging over Non-IID Datasets with Unbalanced Modalities}, 
+      author={Kasra Borazjani and Naji Khosravan and Leslie Ying and Seyyedali Hosseinalipour},
+      year={2024},
+      eprint={2401.03609},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
 
 ## **Contact**
 
