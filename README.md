@@ -65,7 +65,7 @@ This will create a set of initial models for modality combination that will be f
 To start the federated learning process, run the following command in your terminal:
 
 ```bash
-python fed_train_proposed_gb_pcw.py
+python fed_train_proposed_gb.py
 ```
 
 **2. Configuration Options:**
