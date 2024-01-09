@@ -166,10 +166,6 @@ def main():
         for key in network['old_global_classifiers'].keys():
             network['old_global_classifiers'][key] = deepcopy(network['new_global_classifiers'][key])
             
-        
-
-
-        # network['trained_classifiers'] = {"mrna_image":{}}
 
         for client in network['clients']:
 
@@ -192,10 +188,7 @@ def main():
             if fed_round > 1:
                 calculate_weights(network['system_ogr_dict'], client['modalities'], client['weight_dict'])
             
-            # # Hooking the client
-            # client_hooker(client)
-            # one_shot_hooker(client)
-            # debug_hook_applier(client)
+            
 
             criterion = nn.CrossEntropyLoss()
 
@@ -216,8 +209,7 @@ def main():
             print(f"Fed round [{fed_round}],\nTrain loss: {client['train_loss_memory'][-1]:.4f}, train acc: {client['train_acc_memory'][-1]:.4f} \n \
                     validation loss: {client['valid_loss_memory'][-1]:.4f}, validation acc: {client['valid_acc_memory'][-1]:.4f}")
             
-            # ## Remove the hooks assigned to client encoders and classifier
-            # unhook_client(client)
+            
 
             ## Adding the train and validation losses to the network dicts
             network['train_loss_gb'][modality_to_classifier_mapper(client['modalities'])][client['cohort_id']] = client['train_loss_memory'][-1]
@@ -266,7 +258,7 @@ def main():
     plt.figure()
     plt.plot(np.array([x for x in range(len(network['global_valid_acc_memory']))]), network['global_valid_acc_memory'])
     plt.title("Global Model Accuracy")
-    # plt.savefig("../results/mm_no_attention/bi_modal_4_global_acc.png")
+    
     plt.savefig(os.path.join(SAVE_DIR, f"acc_lr_{args.init_lr}_gamma_{args.lr_decay_rate}_every{args.steps_per_decay}steps.png"))
     val_acc_save = np.asarray(network['global_valid_acc_memory'])
     np.savetxt(os.path.join(SAVE_DIR, f"acc_lr_{args.init_lr}_gamma_{args.lr_decay_rate}_every{args.steps_per_decay}steps.csv"), val_acc_save, delimiter=",")
@@ -274,7 +266,7 @@ def main():
     plt.figure()
     plt.plot(np.array([x for x in range(len(network['global_valid_loss_memory']))]), network['global_valid_loss_memory'])
     plt.title("Global Model Loss")
-    # plt.savefig("../results/mm_no_attention/bi_modal_4_global_loss.png")
+    
     plt.savefig(os.path.join(SAVE_DIR, f"loss_lr_{args.init_lr}_gamma_{args.lr_decay_rate}_every{args.steps_per_decay}steps.png"))
     val_loss_save = np.asarray(network['global_valid_loss_memory'])
     np.savetxt(os.path.join(SAVE_DIR, f"loss_lr_{args.init_lr}_gamma_{args.lr_decay_rate}_every{args.steps_per_decay}steps.csv"), val_loss_save, delimiter=",")
@@ -282,7 +274,7 @@ def main():
     plt.figure()
     plt.plot(np.array([x for x in range(len(network['weighted_sum_of_losses']))]), network['weighted_sum_of_losses'])
     plt.title("Weighted Sum of Losses")
-    # plt.savefig("../results/mm_no_attention/bi_modal_4_network_wsl.png")
+
     plt.savefig(os.path.join(SAVE_DIR, f"wsl_lr_{args.init_lr}_gamma_{args.lr_decay_rate}_every{args.steps_per_decay}steps.png"))
     val_wsl_save = np.asarray(network['weighted_sum_of_losses'])
     np.savetxt(os.path.join(SAVE_DIR, f"wsl_lr_{args.init_lr}_gamma_{args.lr_decay_rate}_every{args.steps_per_decay}steps.csv"), val_wsl_save, delimiter=",")
@@ -293,7 +285,7 @@ def main():
     for client in network['clients']:
 
         client['model'].eval()
-        # model = client['model']
+        
         with torch.no_grad():
 
             
@@ -302,20 +294,13 @@ def main():
                 
                 
             client['model'].classifier.load_state_dict(network['global_classifiers'][modality_to_classifier_mapper(client['modalities'])].state_dict())
-            # if (modality_to_classifier_mapper(client['modalities']) == 'mrna_image'):
-            #     kirekhar.append(client['model'].classifier.state_dict()['4.weight'])
-            #     if len(kirekhar) > 1:
-            #         for kirekhar_counter in range(len(kirekhar)-1):
-            #             print(torch.all(client['model'].classifier.state_dict()['4.weight'].eq(kirekhar[kirekhar_counter])))
         
             correct_t = 0
             total_t = 0
             batch_loss = 0  
             cm_pred = np.array([])
             cm_target = np.array([])
-            # print(client['model'].encoders['mrna'].dropout.training)
-            # if (modality_to_classifier_mapper(client['modalities']) == 'mrna_image'):
-            #         print(torch.all(client['model'].encoders['mrna'].state_dict()['fc1.weight'].eq(network['global_model'].encoders['mrna'].state_dict()['fc1.weight'])))
+            
             for val_loader in network['validation_dataloaders']:
                 for val_batch_idx, (data_t, target_t) in enumerate(val_loader):
 
@@ -325,8 +310,6 @@ def main():
 
                     data_t_unpacked = unpack_data(data_t, client['modalities'], client['column_map'], unpack_mode="valid")
                     
-                    # if (modality_to_classifier_mapper(client['modalities']) == 'mrna_image'):
-                    #     print(torch.all(client['model'].classifier.state_dict()['4.weight'].eq(network['global_classifiers'][modality_to_classifier_mapper(client['modalities'])].state_dict()['4.weight'])))
                         
                     outputs_t = client['model'](data_t_unpacked)
                     loss_t = criterion(outputs_t, target_t)
@@ -338,9 +321,6 @@ def main():
                     cm_pred = np.append(cm_pred, pred_t.numpy(force=True))
                     cm_target = np.append(cm_target, target_t_label.numpy(force=True))
             
-            # if (modality_to_classifier_mapper(client['modalities']) == 'mrna_image'):
-            #     print(cm_pred)
-            #     print(cm_target)
             final_f1_score = f1_score(cm_target, cm_pred, average='macro')
             print(f"Final model f1-score: {final_f1_score}")
             cm = confusion_matrix(cm_target, cm_pred, labels=[0,1])
