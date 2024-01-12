@@ -1,4 +1,4 @@
-# Hierarchical Multi-Modal Federated Learning for Cancer Staging
+# Multi-Modal Federated Learning for Cancer Staging over Non-IID Datasets with Unbalanced Modalities
 
 **This repository contains the implementation for the paper "Multi-Modal Federated Learning for Cancer Staging over Non-IID Datasets with Unbalanced Modalities."**
 
