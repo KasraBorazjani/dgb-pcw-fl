@@ -119,13 +119,11 @@ After the code completes, it will generate the following files in the specified 
 
 ## **Citation**
 ```
-@misc{borazjani2024multimodal,
-      title={Multi-Modal Federated Learning for Cancer Staging over Non-IID Datasets with Unbalanced Modalities}, 
-      author={Kasra Borazjani and Naji Khosravan and Leslie Ying and Seyyedali Hosseinalipour},
-      year={2024},
-      eprint={2401.03609},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@article{borazjani2024multi,
+  title={Multi-Modal Federated Learning for Cancer Staging over Non-IID Datasets with Unbalanced Modalities},
+  author={Borazjani, Kasra and Khosravan, Naji and Ying, Leslie and Hosseinalipour, Seyyedali},
+  journal={arXiv preprint arXiv:2401.03609},
+  year={2024}
 }
 ```
 
