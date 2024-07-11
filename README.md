@@ -2,11 +2,11 @@
 
 **This repository contains the implementation for the paper "Multi-Modal Federated Learning for Cancer Staging over Non-IID Datasets with Unbalanced Modalities."**
 
+**Currently updating with the new version of the code**
 
 ## **Library Dependencies**
 
 - Python
-- Custom federated learning framework
 - PyTorch (deep learning library)
 - NumPy, Pandas, Matplotlib, Scikit-learn
 
